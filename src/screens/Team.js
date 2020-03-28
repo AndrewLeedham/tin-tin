@@ -82,6 +82,22 @@ export default function Team() {
       .set({ ...session?.val(), started: true });
   }
 
+  async function openStartModal() {
+    onOpen();
+    await firebase
+      .database()
+      .ref(`sessions/${sessionId}`)
+      .set({ ...session?.val(), lockedIn: true });
+  }
+
+  async function closeStartModal() {
+    onClose();
+    await firebase
+      .database()
+      .ref(`sessions/${sessionId}`)
+      .set({ ...session?.val(), lockedIn: false });
+  }
+
   async function setName(name) {
     await updateUser({ ...user, name });
   }
@@ -154,6 +170,7 @@ export default function Team() {
                     id="name"
                     onChange={event => setName(event.value)}
                     value={user.name}
+                    isDisabled={!!user.team || !!session?.val().lockedIn}
                   />
                 </FormControl>
                 {teams.map(snapshot => {
@@ -185,13 +202,18 @@ export default function Team() {
                           variantColor="red"
                           w={100}
                           onClick={() => leaveTeam()}
+                          isDisabled={!!session?.val().lockedIn}
                         >
                           Leave
                         </Button>
                       ) : (
                         <Button
                           rightIcon={MdAdd}
-                          isDisabled={user.team || totalUsers >= maximumUsers}
+                          isDisabled={
+                            !!user.team ||
+                            totalUsers >= maximumUsers ||
+                            !!session?.val().lockedIn
+                          }
                           variantColor="green"
                           w={100}
                           onClick={() => joinTeam(snapshot.key)}
@@ -204,14 +226,18 @@ export default function Team() {
                 })}
                 {user.admin && (
                   <>
-                    <Button onClick={onOpen} isDisabled={!allSelected}>
+                    <Button onClick={openStartModal} isDisabled={!allSelected}>
                       Start game
                     </Button>{" "}
-                    <Modal isOpen={isOpen} onClose={onClose}>
+                    <Modal
+                      closeOnOverlayClick={false}
+                      closeOnEsc={false}
+                      isOpen={isOpen}
+                      onClose={onClose}
+                    >
                       <ModalOverlay />
                       <ModalContent>
                         <ModalHeader>Start the game</ModalHeader>
-                        <ModalCloseButton />
                         <ModalBody>Are you sure?</ModalBody>
 
                         <ModalFooter>
@@ -222,7 +248,7 @@ export default function Team() {
                           >
                             Start
                           </Button>
-                          <Button variant="ghost" onClick={onClose}>
+                          <Button variant="ghost" onClick={closeStartModal}>
                             Cancel
                           </Button>
                         </ModalFooter>
