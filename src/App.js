@@ -2,8 +2,8 @@ import React from "react";
 import { ThemeProvider, CSSReset } from "@chakra-ui/core";
 import { customTheme } from "./theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import Session from "./screens/Session";
-import Team from "./screens/Team";
+import CreateSession from "./screens/CreateSession";
+import RootSession from "./screens/session";
 
 function App() {
   return (
@@ -11,12 +11,8 @@ function App() {
       <ThemeProvider theme={customTheme}>
         <CSSReset />
         <Switch>
-          <Route path="/sessions/:id">
-            <Team />
-          </Route>
-          <Route path="/">
-            <Session />
-          </Route>
+          <Route path="/sessions/:id" component={RootSession} />
+          <Route path="/" component={CreateSession} />
         </Switch>
       </ThemeProvider>
     </Router>
