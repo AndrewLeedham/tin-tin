@@ -6,13 +6,6 @@ import {
   Text,
   Stack,
   IconButton,
-  ModalOverlay,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalContent,
-  Modal,
-  ModalFooter,
   AlertDialog,
   AlertDialogOverlay,
   AlertDialogContent,
@@ -24,18 +17,7 @@ import Page from "../components/Page";
 import { Swipeable, direction } from "react-deck-swiper";
 import { noselect } from "./Playing.module.css";
 import Clearfix from "../components/Clearfix";
-import {
-  MdTimerOff,
-  MdRemove,
-  MdCheck,
-  MdCancel,
-  MdClose,
-} from "react-icons/md";
-
-function mod(n, d) {
-  const m = n % d;
-  return m < 0 ? d + m : m;
-}
+import { MdTimerOff, MdCheck, MdClose } from "react-icons/md";
 
 export default function Playing({ names: initialNames, endTurn }) {
   const [names, setNames] = useState(initialNames);
