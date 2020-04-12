@@ -33,7 +33,7 @@ function startTurn(session, sessionId, user, updateUser) {
   return async () => {
     const names = session.current
       ? Object.values(session.current)
-      : shuffle(Object.values(session.carbon));
+      : Object.values(session.carbon);
     if (!session.current) {
       await firebase
         .database()
@@ -42,7 +42,7 @@ function startTurn(session, sessionId, user, updateUser) {
     }
     updateUser({
       ...user,
-      names: names.map((name) => ({ name, answered: false })),
+      names: shuffle(names).map((name) => ({ name, answered: false })),
       state: USERSTATE.PLAYING,
     });
   };
