@@ -21,11 +21,19 @@ function addNames(session, sessionId, user, updateUser) {
   };
 }
 
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function startTurn(session, sessionId, user, updateUser) {
   return async () => {
     const names = session.current
       ? Object.values(session.current)
-      : session.carbon;
+      : shuffle(Object.values(session.carbon));
     if (!session.current) {
       await firebase
         .database()
