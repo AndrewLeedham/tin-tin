@@ -6,11 +6,14 @@ export const USERSTATE = {
   WAITING: 2,
 };
 
-function getUserFromSession() {
+function getUserFromSession(sessionId) {
   const raw = sessionStorage.getItem("user");
   if (raw) {
     try {
       const user = JSON.parse(raw);
+      if (sessionId && user.sessionId !== sessionId) {
+        return undefined;
+      }
       return user;
     } catch (e) {
       console.warn("Could not read user from local session: ", e);
@@ -20,8 +23,9 @@ function getUserFromSession() {
   return undefined;
 }
 
-function createUser(admin = false) {
+function createUser(sessionId, admin = false) {
   const user = {
+    sessionId,
     admin,
     state: USERSTATE.SUBMITTING,
     names: undefined,
@@ -32,26 +36,17 @@ function createUser(admin = false) {
   return user;
 }
 
-export default function useUser(admin = false) {
-  const [user, setUser] = useState(getUserFromSession() || createUser(admin));
+export default function useUser(sessionId = null) {
+  const [user, setUser] = useState(
+    () =>
+      (sessionId && getUserFromSession(sessionId)) ||
+      createUser(sessionId, !sessionId)
+  );
 
   function updateUser(user) {
     sessionStorage.setItem("user", JSON.stringify(user));
     setUser(user);
   }
 
-  function updateUserState(newState) {
-    const newUser = { ...user };
-    newUser.state = newState;
-    updateUser(newUser);
-  }
-
-  async function startUserTurn(names) {
-    const newUser = { ...user };
-    newUser.state = USERSTATE.PLAYING;
-    newUser.names = names;
-    updateUser(newUser);
-  }
-
-  return [user, updateUserState, startUserTurn];
+  return [user, updateUser];
 }

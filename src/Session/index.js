@@ -10,52 +10,73 @@ import Error from "../components/Error";
 import Waiting from "./Waiting";
 import Playing from "./Playing";
 
-function addNames(session, sessionId, updateUserState) {
+function addNames(session, sessionId, user, updateUser) {
   return (names) => {
     const previous = session.carbon ? Object.values(session.carbon) : [];
     firebase
       .database()
       .ref(`sessions/${sessionId}/carbon`)
       .set([...previous, ...names]);
-    updateUserState(USERSTATE.WAITING);
+    updateUser({ ...user, state: USERSTATE.WAITING });
   };
 }
 
-function startTurn(session, sessionId, startUserTurn) {
+function startTurn(session, sessionId, user, updateUser) {
   return async () => {
-    const next = session.current
+    const names = session.current
       ? Object.values(session.current)
       : session.carbon;
-    const names = next.splice(0, 4);
+    if (!session.current) {
+      await firebase
+        .database()
+        .ref(`sessions/${sessionId}/current`)
+        .set([...names]);
+    }
+    updateUser({
+      ...user,
+      names: names.map((name) => ({ name, answered: false })),
+      state: USERSTATE.PLAYING,
+    });
+  };
+}
+
+function endTurn(sessionId, user, updateUser) {
+  return async (names) => {
+    names = names.filter(({ answered }) => !answered).map(({ name }) => name);
     await firebase
       .database()
       .ref(`sessions/${sessionId}/current`)
-      .set([...next]);
-    startUserTurn(names);
+      .set([...names]);
+    updateUser({ ...user, names: undefined, state: USERSTATE.WAITING });
   };
 }
 
-function renderScreen(
-  session,
-  sessionId,
-  user,
-  updateUserState,
-  startUserTurn
-) {
+function renderScreen(session, sessionId, user, updateUser) {
   switch (user.state) {
     case USERSTATE.SUBMITTING:
       return (
         <Submitting
           count={session.count}
-          onSubmit={addNames(session, sessionId, updateUserState)}
+          onSubmit={addNames(session, sessionId, user, updateUser)}
         />
       );
     case USERSTATE.WAITING:
       return (
-        <Waiting startTurn={startTurn(session, sessionId, startUserTurn)} />
+        <Waiting
+          startTurn={startTurn(session, sessionId, user, updateUser)}
+          round={
+            !session.current || Object.values(session.current).length === 0
+          }
+        />
       );
     case USERSTATE.PLAYING:
-      return <Playing names={user.names} />;
+      return (
+        <Playing
+          names={user.names}
+          admin={user.admin}
+          endTurn={endTurn(sessionId, user, updateUser)}
+        />
+      );
     default:
       return `Unknown state: ${user.state}`;
   }
@@ -66,10 +87,18 @@ export default function Session() {
   const [session, sessionLoading, sessionError] = useObject(
     firebase.database().ref(`sessions/${sessionId}`)
   );
-  const [user, updateUserState, startUserTurn] = useUser();
+  const [user, updateUser] = useUser(sessionId);
   return (
     <>
-      {sessionLoading && !sessionError && <Spinner />}
+      {sessionLoading && !sessionError && (
+        <Spinner
+          size="xl"
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+        />
+      )}
       {sessionError && !sessionLoading && (
         <Error
           title={"Something went wrong loading the session:"}
@@ -78,13 +107,7 @@ export default function Session() {
       )}
       {!sessionLoading &&
         !sessionError &&
-        renderScreen(
-          session.val(),
-          sessionId,
-          user,
-          updateUserState,
-          startUserTurn
-        )}
+        renderScreen(session.val(), sessionId, user, updateUser)}
     </>
   );
 }

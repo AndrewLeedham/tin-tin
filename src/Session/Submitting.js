@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Button, FormControl, FormLabel, Input } from "@chakra-ui/core";
+import Page from "../components/Page";
+import { MdSend } from "react-icons/md";
+import Clearfix from "../components/Clearfix";
 
 export default function Submitting({ count, onSubmit }) {
   const [names, setNames] = useState(new Array(count).fill(""));
@@ -10,24 +13,38 @@ export default function Submitting({ count, onSubmit }) {
     setNames(newNames);
   }
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit(names);
-      }}
+    <Page
+      heading="Submit your names"
+      subHeading={`Enter the ${count} names you want to put in the tin, then press "Submit names".`}
     >
-      {names.map((name, index) => (
-        <FormControl key={index} isRequired>
-          <FormLabel htmlFor={`name-${index}`}>Name {index + 1}</FormLabel>
-          <Input
-            id={`name-${index}`}
-            value={name}
-            onChange={(event) => updateName(index, event.target.value)}
-            mb={2}
-          />
-        </FormControl>
-      ))}
-      <Button type="submit">Submit names</Button>
-    </form>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit(names);
+        }}
+      >
+        {names.map((name, index) => (
+          <FormControl key={index} isRequired mb={4}>
+            <FormLabel htmlFor={`name-${index}`}>Name {index + 1}</FormLabel>
+            <Input
+              id={`name-${index}`}
+              value={name}
+              onChange={(event) => updateName(index, event.target.value)}
+              mb={2}
+            />
+          </FormControl>
+        ))}
+        <Button
+          type="submit"
+          variant="solid"
+          variantColor="green"
+          rightIcon={MdSend}
+          float="right"
+        >
+          Submit names
+        </Button>
+      </form>
+      <Clearfix />
+    </Page>
   );
 }

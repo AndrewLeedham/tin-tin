@@ -1,6 +1,24 @@
 import React from "react";
-import { Button } from "@chakra-ui/core";
+import { Button, Stack } from "@chakra-ui/core";
+import Page from "../components/Page";
+import { MdTimer } from "react-icons/md";
 
-export default function Waiting({ startTurn }) {
-  return <Button onClick={startTurn}>Start Turn</Button>;
+export default function Waiting({ startTurn, round }) {
+  return (
+    <Page
+      heading="Tin-tin"
+      subHeading='Welcome to tin-tin, press "Start turn" when it is your go. "Start round" will be shown if there are no names left.'
+    >
+      <Stack isInline justify="center" spacing={2}>
+        <Button
+          onClick={startTurn}
+          variant="solid"
+          variantColor="green"
+          rightIcon={MdTimer}
+        >
+          Start {round ? "round" : "turn"}
+        </Button>
+      </Stack>
+    </Page>
+  );
 }
