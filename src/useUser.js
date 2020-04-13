@@ -7,7 +7,7 @@ export const USERSTATE = {
 };
 
 function getUserFromSession(sessionId) {
-  const raw = sessionStorage.getItem("user");
+  const raw = window.localStorage.getItem("user");
   if (raw) {
     try {
       const user = JSON.parse(raw);
@@ -31,7 +31,7 @@ function createUser(sessionId, admin = false) {
     names: undefined,
   };
 
-  sessionStorage.setItem("user", JSON.stringify(user));
+  window.localStorage.setItem("user", JSON.stringify(user));
 
   return user;
 }
@@ -44,7 +44,7 @@ export default function useUser(sessionId = null) {
   );
 
   function updateUser(user) {
-    sessionStorage.setItem("user", JSON.stringify(user));
+    window.localStorage.setItem("user", JSON.stringify(user));
     setUser(user);
   }
 
