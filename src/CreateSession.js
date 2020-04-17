@@ -15,23 +15,33 @@ import firebase from "./firebase";
 import Page from "./components/Page";
 import { MdAdd } from "react-icons/md";
 import Clearfix from "./components/Clearfix";
+import useAsyncError from "./useAsyncError";
 
 export default function CreateSession() {
   const [count, setCount] = useState(4);
   const [key, setKey] = useState(undefined);
   const [user, updateUser] = useUser();
+  const throwError = useAsyncError();
   useEffect(() => {
     if (user.sessionId) {
       setKey(user.sessionId);
     }
   }, [user.sessionId]);
 
-  async function onSubmit(event) {
+  function onSubmit(event) {
     event.preventDefault();
-    const { key: sessionId } = await firebase.database().ref("sessions").push({
-      count,
-    });
-    updateUser({ ...user, sessionId });
+    firebase
+      .database()
+      .ref("sessions")
+      .push({
+        count,
+      })
+      .then(({ key: sessionId }) => {
+        updateUser({ ...user, sessionId });
+      })
+      .catch((e) => {
+        throwError(e);
+      });
   }
 
   return (

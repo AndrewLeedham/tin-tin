@@ -4,16 +4,23 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  CloseButton,
 } from "@chakra-ui/core";
 
-export default function Error({ title, description }) {
+export default function Error({ error }) {
   return (
-    <Alert status="error">
-      <AlertIcon />
-      <AlertTitle mr={2}>{title}</AlertTitle>
-      <AlertDescription>{description.toString()}</AlertDescription>
-      <CloseButton position="absolute" right="8px" top="8px" />
+    <Alert
+      status="error"
+      variant="subtle"
+      flexDirection="column"
+      justifyContent="center"
+      textAlign="center"
+      height="200px"
+    >
+      <AlertIcon size="40px" mr={0} />
+      <AlertTitle mt={4} mb={1} fontSize="lg">
+        Something went wrong
+      </AlertTitle>
+      <AlertDescription maxWidth="sm">{error}</AlertDescription>
     </Alert>
   );
 }

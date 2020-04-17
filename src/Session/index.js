@@ -6,17 +6,20 @@ import { useParams } from "react-router-dom";
 import useUser, { USERSTATE } from "../useUser";
 import Submitting from "./Submitting";
 import { Spinner } from "@chakra-ui/core";
-import Error from "../components/Error";
 import Waiting from "./Waiting";
 import Playing from "./Playing";
+import Error from "../components/Error";
+import Page from "../components/Page";
+import useAsyncError from "../useAsyncError";
 
-function addNames(session, sessionId, user, updateUser) {
+function addNames(session, sessionId, user, updateUser, throwError) {
   return (names) => {
     const previous = session.carbon ? Object.values(session.carbon) : [];
     firebase
       .database()
       .ref(`sessions/${sessionId}/carbon`)
-      .set([...previous, ...names]);
+      .set([...previous, ...names])
+      .catch(throwError);
     updateUser({ ...user, state: USERSTATE.WAITING });
   };
 }
@@ -29,16 +32,17 @@ function shuffle(a) {
   return a;
 }
 
-function startTurn(session, sessionId, user, updateUser) {
-  return async () => {
+function startTurn(session, sessionId, user, updateUser, throwError) {
+  return () => {
     const names = session.current
       ? Object.values(session.current)
       : Object.values(session.carbon);
     if (!session.current) {
-      await firebase
+      firebase
         .database()
         .ref(`sessions/${sessionId}/current`)
-        .set([...names]);
+        .set([...names])
+        .catch(throwError);
     }
     updateUser({
       ...user,
@@ -48,30 +52,37 @@ function startTurn(session, sessionId, user, updateUser) {
   };
 }
 
-function endTurn(sessionId, user, updateUser) {
-  return async (names) => {
+function endTurn(sessionId, user, updateUser, throwError) {
+  return (names) => {
     names = names.filter(({ answered }) => !answered).map(({ name }) => name);
-    await firebase
+    firebase
       .database()
       .ref(`sessions/${sessionId}/current`)
-      .set([...names]);
+      .set([...names])
+      .catch(throwError);
     updateUser({ ...user, names: undefined, state: USERSTATE.WAITING });
   };
 }
 
-function renderScreen(session, sessionId, user, updateUser) {
+function renderScreen(session, sessionId, user, updateUser, throwError) {
   switch (user.state) {
     case USERSTATE.SUBMITTING:
       return (
         <Submitting
           count={session.count}
-          onSubmit={addNames(session, sessionId, user, updateUser)}
+          onSubmit={addNames(session, sessionId, user, updateUser, throwError)}
         />
       );
     case USERSTATE.WAITING:
       return (
         <Waiting
-          startTurn={startTurn(session, sessionId, user, updateUser)}
+          startTurn={startTurn(
+            session,
+            sessionId,
+            user,
+            updateUser,
+            throwError
+          )}
           round={
             !session.current || Object.values(session.current).length === 0
           }
@@ -82,7 +93,7 @@ function renderScreen(session, sessionId, user, updateUser) {
         <Playing
           names={user.names}
           admin={user.admin}
-          endTurn={endTurn(sessionId, user, updateUser)}
+          endTurn={endTurn(sessionId, user, updateUser, throwError)}
         />
       );
     default:
@@ -92,6 +103,7 @@ function renderScreen(session, sessionId, user, updateUser) {
 
 export default function Session() {
   const { id: sessionId } = useParams();
+  const throwError = useAsyncError();
   const [session, sessionLoading, sessionError] = useObject(
     firebase.database().ref(`sessions/${sessionId}`)
   );
@@ -108,14 +120,13 @@ export default function Session() {
         />
       )}
       {sessionError && !sessionLoading && (
-        <Error
-          title={"Something went wrong loading the session:"}
-          description={sessionError}
-        />
+        <Page>
+          <Error error={sessionError.toString()} />
+        </Page>
       )}
       {!sessionLoading &&
         !sessionError &&
-        renderScreen(session.val(), sessionId, user, updateUser)}
+        renderScreen(session.val(), sessionId, user, updateUser, throwError)}
     </>
   );
 }
