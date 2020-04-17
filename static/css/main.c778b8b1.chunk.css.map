@@ -1,0 +1,1 @@
+{"version":3,"sources":["Playing.module.css"],"names":[],"mappings":"AAAA,yBACE,0BAA2B,CAC3B,wBAAyB,CAEzB,qBAAsB,CACtB,oBAAqB,CACrB,gBACF","file":"main.c778b8b1.chunk.css","sourcesContent":[".noselect {\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  -khtml-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n"]}
