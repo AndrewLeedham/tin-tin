@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, FormControl, FormLabel, Input } from "@chakra-ui/core";
 import Page from "../components/Page";
-import { MdSend } from "react-icons/md";
+import { MdSend, MdSkipNext } from "react-icons/md";
 import Clearfix from "../components/Clearfix";
 
 export default function Submitting({ count, onSubmit }) {
@@ -42,6 +42,14 @@ export default function Submitting({ count, onSubmit }) {
           float="right"
         >
           Submit names
+        </Button>
+        <Button
+          variant="outline"
+          rightIcon={MdSkipNext}
+          float="left"
+          onClick={() => onSubmit([])}
+        >
+          Skip and join
         </Button>
       </form>
       <Clearfix />

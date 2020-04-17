@@ -3,7 +3,7 @@ import { Button, Stack } from "@chakra-ui/core";
 import Page from "../components/Page";
 import { MdTimer } from "react-icons/md";
 
-export default function Waiting({ startTurn, round }) {
+export default function Waiting({ startTurn, round, noNames }) {
   return (
     <Page
       heading="Tin-tin"
@@ -15,6 +15,7 @@ export default function Waiting({ startTurn, round }) {
           variant="solid"
           variantColor="green"
           rightIcon={MdTimer}
+          isDisabled={noNames}
         >
           Start {round ? "round" : "turn"}
         </Button>

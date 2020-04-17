@@ -2,7 +2,7 @@
 - ~~Total tick boxes~~
 - ~~Counter of names left?~~
 - Add timer (starts on "Start turn", pauses on "End turn")
-- Allow the user to skip submitting names
+- ~~Allow the user to skip submitting names~~
 - Store timestamp and check for old sessions
 - Use a hash router and deploy via GitHub actions > gh-pages
 - Setup firebase security rules

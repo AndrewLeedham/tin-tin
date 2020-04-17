@@ -86,6 +86,9 @@ function renderScreen(session, sessionId, user, updateUser, throwError) {
           round={
             !session.current || Object.values(session.current).length === 0
           }
+          noNames={
+            !session.carbon || Object.values(session.carbon).length === 0
+          }
         />
       );
     case USERSTATE.PLAYING:
