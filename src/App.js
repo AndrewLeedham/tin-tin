@@ -1,7 +1,7 @@
 import React from "react";
 import { ThemeProvider, CSSReset } from "@chakra-ui/core";
 import { customTheme } from "./theme";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import Session from "./Session";
 import CreateSession from "./CreateSession";
 import ErrorBoundary from "./components/ErrorBoundary";
