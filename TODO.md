@@ -1,6 +1,6 @@
 - ~~Use localStorage not sessionStorage~~
 - ~~Total tick boxes~~
-- Counter of names left?
+- ~~Counter of names left?~~
 - Add timer (starts on "Start turn", pauses on "End turn")
 - Allow the user to skip submitting names
 - Store timestamp and check for old sessions

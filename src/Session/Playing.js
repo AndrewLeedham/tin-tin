@@ -55,9 +55,14 @@ export default function Playing({ names: initialNames, endTurn }) {
     }
   }
 
+  const outOf =
+    typeof currentTile !== "undefined" || typeof passed !== "undefined"
+      ? `${(currentTile ?? passed) + 1}/${names.length}`
+      : "";
+
   return (
     <>
-      <Page heading="Tin-tin">
+      <Page heading={`Tin-tin ${outOf}`}>
         {typeof currentTile !== "undefined" || typeof passed !== "undefined" ? (
           <Swipeable
             onSwipe={onSwipe}
