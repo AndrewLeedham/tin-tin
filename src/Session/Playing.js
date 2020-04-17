@@ -171,6 +171,14 @@ export default function Playing({ names: initialNames, endTurn }) {
                   {name}
                 </Checkbox>
               ))}
+            <Text>
+              You scored
+              {": " +
+                names.reduce(
+                  (total, { answered }) => (total += Number(answered)),
+                  0
+                )}
+            </Text>
           </AlertDialogBody>
 
           <AlertDialogFooter>
