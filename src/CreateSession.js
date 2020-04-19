@@ -39,9 +39,7 @@ export default function CreateSession() {
       .then(({ key: sessionId }) => {
         updateUser({ ...user, sessionId });
       })
-      .catch((e) => {
-        throwError(e);
-      });
+      .catch(throwError);
   }
 
   return (
