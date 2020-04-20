@@ -2,7 +2,7 @@ name: Purge old sessions
 
 on:
   schedule:
-    - cron: "30 22 * * *"
+    - cron: "45 21 * * *"
 
 jobs:
   purge:
