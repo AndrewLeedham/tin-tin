@@ -20,7 +20,7 @@ export default function Error({ error }) {
       <AlertTitle mt={4} mb={1} fontSize="lg">
         Something went wrong
       </AlertTitle>
-      <AlertDescription maxWidth="sm">{error}</AlertDescription>
+      <AlertDescription maxWidth="sm">{error.toString()}</AlertDescription>
     </Alert>
   );
 }

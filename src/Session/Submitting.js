@@ -31,6 +31,8 @@ export default function Submitting({ count, onSubmit }) {
               value={name}
               onChange={(event) => updateName(index, event.target.value)}
               mb={2}
+              minLength={1}
+              maxLength={30}
             />
           </FormControl>
         ))}
