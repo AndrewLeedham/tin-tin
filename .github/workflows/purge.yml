@@ -2,7 +2,7 @@ name: Purge old sessions
 
 on:
   schedule:
-    - cron: "5 22 * * *"
+    - cron: "30 22 * * *"
 
 jobs:
   purge:
@@ -17,3 +17,5 @@ jobs:
       - run: yarn run purge
         env:
           CI: true
+          TINTIN_USER: ${{ secrets.TINTIN_USER }}
+          TINTIN_PASS: ${{ secrets.TINTIN_PASS }}
