@@ -15,7 +15,7 @@ jobs:
           node-version: "12.x"
       - run: yarn install
       - run: yarn run build
-      - run: npx gh-pages -d build --repo \"https://git:${GITHUB_TOKEN}@github.com/AndrewLeedham/tin-tin.git\" --silent -u "github-actions-bot <support+actions@github.com>"
+      - run: npx gh-pages -d build --repo "https://git:${GITHUB_TOKEN}@github.com/AndrewLeedham/tin-tin.git" --silent -u "github-actions-bot <support+actions@github.com>"
         env:
           CI: true
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
