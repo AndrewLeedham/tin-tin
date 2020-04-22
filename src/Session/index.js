@@ -5,7 +5,7 @@ import { useObject } from "react-firebase-hooks/database";
 import { useParams } from "react-router-dom";
 import useUser, { USERSTATE } from "../useUser";
 import Submitting from "./Submitting";
-import { Spinner } from "@chakra-ui/core";
+import { Spinner, Flex } from "@chakra-ui/core";
 import Waiting from "./Waiting";
 import Playing from "./Playing";
 import Error from "../components/Error";
@@ -33,7 +33,7 @@ function shuffle(a) {
 }
 
 function startTurn(session, sessionId, user, updateUser, throwError) {
-  return () => {
+  return (minutes, seconds) => {
     const names = session.current
       ? Object.values(session.current)
       : Object.values(session.carbon);
@@ -48,6 +48,7 @@ function startTurn(session, sessionId, user, updateUser, throwError) {
       ...user,
       names: shuffle(names).map((name) => ({ name, answered: false })),
       state: USERSTATE.PLAYING,
+      timer: minutes * 60 + seconds,
     });
   };
 }
@@ -89,13 +90,14 @@ function renderScreen(session, sessionId, user, updateUser, throwError) {
           noNames={
             !session.carbon || Object.values(session.carbon).length === 0
           }
+          timer={user.timer}
         />
       );
     case USERSTATE.PLAYING:
       return (
         <Playing
           names={user.names}
-          admin={user.admin}
+          timer={user.timer}
           endTurn={endTurn(sessionId, user, updateUser, throwError)}
         />
       );
@@ -114,13 +116,9 @@ export default function Session() {
   return (
     <>
       {sessionLoading && !sessionError && (
-        <Spinner
-          size="xl"
-          position="absolute"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-        />
+        <Flex alignItems="center" justifyContent="center" mt={16}>
+          <Spinner size="xl" transform="translate(-50%, -50%)" />
+        </Flex>
       )}
       {sessionError && !sessionLoading && (
         <Page>
