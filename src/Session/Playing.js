@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Button,
   Box,
@@ -12,20 +12,68 @@ import {
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
+  Flex,
 } from "@chakra-ui/core";
 import Page from "../components/Page";
 import { Swipeable, direction } from "react-deck-swiper";
 import { noselect } from "./Playing.module.css";
 import Clearfix from "../components/Clearfix";
-import { MdTimerOff, MdCheck, MdClose } from "react-icons/md";
+import { FiPause, FiCheck, FiX } from "react-icons/fi";
+import Timer from "../components/Timer";
+import useLocalStorageState from "../useLocalStorageState";
+import useTimer from "../useTimer";
 
-export default function Playing({ names: initialNames, endTurn }) {
-  const [names, setNames] = useState(initialNames);
-  const [currentTile, setCurrentTile] = useState(0);
-  const [passed, setPassed] = useState(undefined);
-  const [isOpen, setIsOpen] = React.useState();
-  const onClose = () => setIsOpen(false);
+export default function Playing({ names: initialNames, endTurn, timer }) {
+  const [names, setNames, cleanupNames] = useLocalStorageState(
+    "names",
+    initialNames
+  );
+  const [
+    currentTile,
+    setCurrentTile,
+    cleanupCurrentTile,
+  ] = useLocalStorageState("currentTile", 0);
+  const [passed, setPassed, cleanupPassed] = useLocalStorageState(
+    "passed",
+    null
+  );
+  const [isOpen, setIsOpen, cleanupIsOpen] = useLocalStorageState(
+    "isOpen",
+    false
+  );
+  const [
+    isCancelable,
+    setIsCancelable,
+    cleanupIsCancelable,
+  ] = useLocalStorageState("isCancelable", true);
+
+  const [time, isPaused, setIsPaused, resetTimer, cleanupTimer] = useTimer(
+    timer,
+    () => {
+      setIsCancelable(false);
+      setIsOpen(true);
+    }
+  );
+
+  const closeAlert = () => {
+    setIsPaused(false);
+    setIsOpen(false);
+  };
+  function openAlert() {
+    setIsPaused(true);
+    setIsOpen(true);
+  }
   const cancelRef = React.useRef();
+
+  function end() {
+    cleanupNames();
+    cleanupCurrentTile();
+    cleanupPassed();
+    cleanupIsOpen();
+    cleanupIsCancelable();
+    cleanupTimer();
+    endTurn(names);
+  }
 
   function updateName(index, value) {
     const newNames = [...names];
@@ -36,9 +84,9 @@ export default function Playing({ names: initialNames, endTurn }) {
   function onSwipe(swipeDirection) {
     let answeredPassed = false;
     if (swipeDirection === direction.LEFT) {
-      if (typeof passed !== "undefined") {
+      if (passed !== null) {
         updateName(passed, true);
-        setPassed(undefined);
+        setPassed(null);
         answeredPassed = true;
       } else {
         setPassed(currentTile);
@@ -50,20 +98,20 @@ export default function Playing({ names: initialNames, endTurn }) {
       if (currentTile + 1 < names.length) {
         setCurrentTile(currentTile + 1);
       } else {
-        setCurrentTile(undefined);
+        setCurrentTile(null);
       }
     }
   }
 
   const outOf =
-    typeof currentTile !== "undefined" || typeof passed !== "undefined"
+    currentTile !== null || passed !== null
       ? `${(currentTile ?? passed) + 1}/${names.length}`
       : "";
 
   return (
     <>
       <Page heading={`Tin-tin ${outOf}`}>
-        {typeof currentTile !== "undefined" || typeof passed !== "undefined" ? (
+        {currentTile !== null || passed !== null ? (
           <Swipeable
             onSwipe={onSwipe}
             renderButtons={({ left, right }) => (
@@ -76,34 +124,25 @@ export default function Playing({ names: initialNames, endTurn }) {
               >
                 <IconButton
                   size="lg"
-                  aria-label={
-                    typeof passed === "undefined" ? "Pass" : "Answered passed"
-                  }
-                  icon={typeof passed === "undefined" ? MdClose : MdCheck}
+                  aria-label={passed === null ? "Pass" : "Answered passed"}
+                  icon={passed === null ? FiX : FiCheck}
                   variant="solid"
-                  variantColor={
-                    typeof passed === "undefined" ? "red" : "orange"
-                  }
+                  variantColor={passed === null ? "red" : "orange"}
                   onClick={left}
                 />
-                {typeof passed !== "undefined" &&
-                  typeof currentTile !== "undefined" && (
-                    <Text>
-                      <strong>Passed:</strong> {names[passed].name}
-                    </Text>
-                  )}
+                {passed !== null && currentTile !== null && (
+                  <Text>
+                    <strong>Passed:</strong> {names[passed].name}
+                  </Text>
+                )}
                 <IconButton
                   size="lg"
                   aria-label={
-                    typeof currentTile !== "undefined"
-                      ? "Correct"
-                      : "Answered passed"
+                    currentTile !== null ? "Correct" : "Answered passed"
                   }
-                  icon={MdCheck}
-                  variantColor={
-                    typeof currentTile !== "undefined" ? "green" : "orange"
-                  }
-                  onClick={typeof currentTile !== "undefined" ? right : left}
+                  icon={FiCheck}
+                  variantColor={currentTile !== null ? "green" : "orange"}
+                  onClick={currentTile !== null ? right : left}
                 />
               </Stack>
             )}
@@ -116,7 +155,7 @@ export default function Playing({ names: initialNames, endTurn }) {
               textAlign="center"
             >
               <Text fontSize="3xl" className={noselect}>
-                {typeof currentTile !== "undefined"
+                {currentTile !== null
                   ? names[currentTile].name
                   : `Passed: ${names[passed].name}`}
               </Text>
@@ -129,22 +168,31 @@ export default function Playing({ names: initialNames, endTurn }) {
             </Text>
           </Box>
         )}
-        <Stack isInline justify="center" spacing={2} mt={10}>
+        <Flex justifyContent="space-between" mt={10}>
+          <Timer
+            time={time}
+            reset={resetTimer}
+            initialTime={timer}
+            isPaused={isPaused}
+            toggle={() => setIsPaused(!isPaused)}
+          />
           <Button
             variant="outline"
             variantColor="red"
-            rightIcon={MdTimerOff}
-            onClick={() => setIsOpen(true)}
+            rightIcon={FiPause}
+            onClick={openAlert}
           >
             End turn
           </Button>
-        </Stack>
+        </Flex>
         <Clearfix />
       </Page>
       <AlertDialog
         isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
+        leastDestructiveRef={isCancelable && cancelRef}
+        onClose={isCancelable && closeAlert}
+        closeOnOverlayClick={isCancelable}
+        closeOnEsc={isCancelable}
       >
         <AlertDialogOverlay />
         <AlertDialogContent>
@@ -154,12 +202,7 @@ export default function Playing({ names: initialNames, endTurn }) {
 
           <AlertDialogBody>
             {names
-              .slice(
-                0,
-                typeof currentTile !== "undefined"
-                  ? currentTile + 1
-                  : names.length
-              )
+              .slice(0, currentTile !== null ? currentTile + 1 : names.length)
               .map(({ name, answered }, index) => (
                 <Checkbox
                   id={`name-${index}`}
@@ -187,10 +230,12 @@ export default function Playing({ names: initialNames, endTurn }) {
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button variantColor="green" onClick={() => endTurn(names)} ml={3}>
+            {isCancelable && (
+              <Button ref={cancelRef} onClick={closeAlert}>
+                Cancel
+              </Button>
+            )}
+            <Button variantColor="green" onClick={end} ml={3}>
               Confirm
             </Button>
           </AlertDialogFooter>

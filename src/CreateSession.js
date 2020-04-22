@@ -15,15 +15,15 @@ import { Redirect } from "react-router-dom";
 import useUser from "./useUser";
 import firebase from "./firebase";
 import Page from "./components/Page";
-import { GoPlus, GoSignIn, GoSignOut } from "react-icons/go";
+import { FiPlus, FiLogIn, FiLogOut } from "react-icons/fi";
 import Clearfix from "./components/Clearfix";
 import useAsyncError from "./useAsyncError";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Error from "./components/Error";
 
 export default function CreateSession() {
-  const [username, setUsername] = useState(undefined);
-  const [password, setPassword] = useState(undefined);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   let [admin, loading, error] = useAuthState(firebase.auth());
   const [authError, setAuthError] = useState(undefined);
   const [count, setCount] = useState(4);
@@ -111,7 +111,7 @@ export default function CreateSession() {
               </FormControl>
               <Button
                 variant="outline"
-                rightIcon={GoSignOut}
+                rightIcon={FiLogOut}
                 float="left"
                 onClick={() => signout()}
               >
@@ -121,7 +121,7 @@ export default function CreateSession() {
                 type="submit"
                 variant="solid"
                 variantColor="green"
-                rightIcon={GoPlus}
+                rightIcon={FiPlus}
                 float="right"
               >
                 Create new session
@@ -163,7 +163,7 @@ export default function CreateSession() {
               type="submit"
               variant="solid"
               variantColor="green"
-              rightIcon={GoSignIn}
+              rightIcon={FiLogIn}
             >
               Sign in
             </Button>

@@ -1,9 +1,19 @@
 - ~~Use localStorage not sessionStorage~~
 - ~~Total tick boxes~~
 - ~~Counter of names left?~~
-- Add timer (starts on "Start turn", pauses on "End turn")
+- ~~Add timer (starts on "Start turn", pauses on "End turn")~~
 - ~~Allow the user to skip submitting names~~
-- Store timestamp and check for old sessions
+- ~~Store timestamp and check for old sessions~~
 - ~~Use a hash router and deploy via GitHub actions > gh-pages~~
-- Setup firebase security rules
+- ~~Setup firebase security rules~~
 - ~~Fix andrewleedham.me~~
+- ~~Normalise icons~~
+- ~~Store game data in localStorage~~
+- ~~Fix sign in uncontrolled input~~
+- ~~Disable start turn when another user is playing~~
+- Handle offline event stopping game until reconnected.
+- Add service worker update toast.
+- Theme based on original tin (colour scheme + favicon + maybe tin animation)
+- Write up README
+- Add unit testing
+- Create changelog for 1.0 release via semantic-release
