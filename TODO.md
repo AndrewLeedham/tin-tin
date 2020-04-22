@@ -10,6 +10,7 @@
 - ~~Normalise icons~~
 - ~~Store game data in localStorage~~
 - ~~Fix sign in uncontrolled input~~
+- ~~Disable start turn when another user is playing~~
 - Handle offline event stopping game until reconnected.
 - Add service worker update toast.
 - Theme based on original tin (colour scheme + favicon + maybe tin animation)

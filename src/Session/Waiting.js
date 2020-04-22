@@ -14,7 +14,7 @@ import Page from "../components/Page";
 import { FiPlay } from "react-icons/fi";
 import Clearfix from "../components/Clearfix";
 
-export default function Waiting({ startTurn, round, noNames, timer }) {
+export default function Waiting({ startTurn, round, noNames, timer, lock }) {
   const [minutes, setMinutes] = useState(timer ? Math.floor(timer / 60) : 1);
   const [seconds, setSeconds] = useState(timer ? Math.floor(timer % 60) : 0);
   const secondsDiv = useRef(null);
@@ -100,7 +100,7 @@ export default function Waiting({ startTurn, round, noNames, timer }) {
             variant="solid"
             variantColor="green"
             rightIcon={FiPlay}
-            isDisabled={noNames}
+            isDisabled={noNames || lock}
           >
             Start {round ? "round" : "turn"}
           </Button>
