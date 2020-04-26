@@ -3,8 +3,13 @@ import useLocalStorageState from "./useLocalStorageState";
 
 export default function useTimer(start, onTimerEnd) {
   const [isPaused, setIsPaused] = useState(false);
-  const [time, setTime, cleanup] = useLocalStorageState("time", start);
+  const [time, setTime, cleanupStorage] = useLocalStorageState("time", start);
   const [last, setLast] = useState(Date.now());
+  const [alarm] = useState(() => {
+    const out = new Audio("/alarm.mp3");
+    out.loop = true;
+    return out;
+  });
   useEffect(() => {
     const timer = setInterval(() => {
       if (isPaused !== true) {
@@ -16,6 +21,7 @@ export default function useTimer(start, onTimerEnd) {
           } else {
             setTime(0);
             setIsPaused(true);
+            alarm.play();
             onTimerEnd && onTimerEnd();
           }
         } else {
@@ -29,6 +35,12 @@ export default function useTimer(start, onTimerEnd) {
   function reset() {
     setTime(start);
     setLast(Date.now());
+    alarm.pause();
+  }
+
+  function cleanup() {
+    cleanupStorage();
+    alarm.pause();
   }
 
   return [time, isPaused, setIsPaused, reset, cleanup];
