@@ -119,6 +119,7 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
                 isInline
                 flex="1"
                 justifyContent="space-between"
+                alignItems="center"
                 spacing={2}
                 p={8}
               >
@@ -131,7 +132,7 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
                   onClick={left}
                 />
                 {passed !== null && currentTile !== null && (
-                  <Text>
+                  <Text flexGrow="1">
                     <strong>Passed:</strong> {names[passed].name}
                   </Text>
                 )}
