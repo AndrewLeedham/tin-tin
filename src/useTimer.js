@@ -6,7 +6,7 @@ export default function useTimer(start, onTimerEnd) {
   const [time, setTime, cleanupStorage] = useLocalStorageState("time", start);
   const [last, setLast] = useState(Date.now());
   const [alarm] = useState(() => {
-    const out = new Audio("/alarm.mp3");
+    const out = new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`);
     out.loop = true;
     return out;
   });
