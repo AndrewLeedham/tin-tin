@@ -18,7 +18,13 @@ import Page from "../components/Page";
 import { Swipeable, direction } from "react-deck-swiper";
 import { noselect } from "./Playing.module.css";
 import Clearfix from "../components/Clearfix";
-import { FiPause, FiCheck, FiX } from "react-icons/fi";
+import {
+  FiPause,
+  FiCheck,
+  FiDownload,
+  FiUpload,
+  FiVolumeX,
+} from "react-icons/fi";
 import Timer from "../components/Timer";
 import useLocalStorageState from "../useLocalStorageState";
 import useTimer from "../useTimer";
@@ -47,13 +53,18 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
     cleanupIsCancelable,
   ] = useLocalStorageState("isCancelable", true);
 
-  const [time, isPaused, setIsPaused, resetTimer, cleanupTimer] = useTimer(
-    timer,
-    () => {
-      setIsCancelable(false);
-      setIsOpen(true);
-    }
-  );
+  const [
+    time,
+    isPaused,
+    setIsPaused,
+    resetTimer,
+    cleanupTimer,
+    alarmPlaying,
+    stopAlarm,
+  ] = useTimer(timer, () => {
+    setIsCancelable(false);
+    setIsOpen(true);
+  });
 
   const closeAlert = () => {
     setIsPaused(false);
@@ -126,7 +137,7 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
                 <IconButton
                   size="lg"
                   aria-label={passed === null ? "Pass" : "Answered passed"}
-                  icon={passed === null ? FiX : FiCheck}
+                  icon={passed === null ? FiDownload : FiUpload}
                   variant="solid"
                   variantColor={passed === null ? "red" : "orange"}
                   onClick={left}
@@ -141,7 +152,7 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
                   aria-label={
                     currentTile !== null ? "Correct" : "Answered passed"
                   }
-                  icon={FiCheck}
+                  icon={currentTile !== null ? FiCheck : FiUpload}
                   variantColor={currentTile !== null ? "green" : "orange"}
                   onClick={currentTile !== null ? right : left}
                 />
@@ -196,51 +207,79 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
         closeOnEsc={isCancelable}
       >
         <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader fontSize="lg" fontWeight="bold">
-            Double check you did not mis-click anything:
-          </AlertDialogHeader>
-
-          <AlertDialogBody>
-            {names
-              .slice(0, currentTile !== null ? currentTile + 1 : names.length)
-              .map(({ name, answered }, index) => (
-                <Checkbox
-                  id={`name-${index}`}
-                  isChecked={answered}
-                  onChange={(event) => updateName(index, event.target.checked)}
-                  isInline
-                  isFullWidth
-                  key={index}
-                  rounded="md"
-                  borderWidth={1}
-                  p={2}
-                  mb={2}
+        {alarmPlaying ? (
+          <AlertDialogContent>
+            <AlertDialogHeader
+              fontSize="lg"
+              fontWeight="bold"
+              textAlign="center"
+            >
+              Time is up!
+            </AlertDialogHeader>
+            <AlertDialogBody paddingBottom={5}>
+              <Stack isInline justify="center">
+                <Button
+                  onClick={stopAlarm}
+                  flexDirection={"column"}
+                  paddingX={8}
+                  paddingY={12}
+                  variantColor="red"
                 >
-                  {name}
-                </Checkbox>
-              ))}
-            <Text>
-              You scored
-              {": " +
-                names.reduce(
-                  (total, { answered }) => (total += Number(answered)),
-                  0
-                )}
-            </Text>
-          </AlertDialogBody>
+                  <FiVolumeX size={30} style={{ marginBottom: "0.5rem" }} />
+                  Stop Alarm
+                </Button>
+              </Stack>
+            </AlertDialogBody>
+          </AlertDialogContent>
+        ) : (
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Double check you did not mis-click anything:
+            </AlertDialogHeader>
 
-          <AlertDialogFooter>
-            {isCancelable && (
-              <Button ref={cancelRef} onClick={closeAlert}>
-                Cancel
+            <AlertDialogBody>
+              {names
+                .slice(0, currentTile !== null ? currentTile + 1 : names.length)
+                .map(({ name, answered }, index) => (
+                  <Checkbox
+                    id={`name-${index}`}
+                    isChecked={answered}
+                    onChange={(event) =>
+                      updateName(index, event.target.checked)
+                    }
+                    isInline
+                    isFullWidth
+                    key={index}
+                    rounded="md"
+                    borderWidth={1}
+                    p={2}
+                    mb={2}
+                  >
+                    {name}
+                  </Checkbox>
+                ))}
+              <Text>
+                You scored
+                {": " +
+                  names.reduce(
+                    (total, { answered }) => (total += Number(answered)),
+                    0
+                  )}
+              </Text>
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              {isCancelable && (
+                <Button ref={cancelRef} onClick={closeAlert}>
+                  Cancel
+                </Button>
+              )}
+              <Button variantColor="green" onClick={end} ml={3}>
+                Confirm
               </Button>
-            )}
-            <Button variantColor="green" onClick={end} ml={3}>
-              Confirm
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        )}
       </AlertDialog>
     </>
   );

@@ -14,7 +14,10 @@ const ora = require("ora");
     const val = sessions.val();
     if (val) {
       for (const [key, value] of Object.entries(val)) {
-        if (!value.timestamp || Date.now() - value.timestamp >= 5184000) {
+        if (
+          !value.timestamp ||
+          Date.now() - value.timestamp >= 1000 * 60 * 60 * 24
+        ) {
           const spinner = ora(`Removing session (${key})`);
           await firebase
             .database()

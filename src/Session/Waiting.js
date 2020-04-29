@@ -97,7 +97,7 @@ export default function Waiting({ startTurn, round, noNames, timer, lock }) {
         <Stack isInline justify="center">
           <Button
             type="submit"
-            variant="solid"
+            variant={round ? "solid" : "outline"}
             variantColor="green"
             rightIcon={FiPlay}
             isDisabled={noNames || lock}

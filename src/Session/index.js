@@ -19,8 +19,10 @@ function addNames(session, sessionId, user, updateUser, throwError) {
       .database()
       .ref(`sessions/${sessionId}/carbon`)
       .set([...previous, ...names])
+      .then(() => {
+        updateUser({ ...user, state: USERSTATE.WAITING });
+      })
       .catch(throwError);
-    updateUser({ ...user, state: USERSTATE.WAITING });
   };
 }
 
@@ -38,24 +40,31 @@ function startTurn(session, sessionId, user, updateUser, throwError) {
       .database()
       .ref(`sessions/${sessionId}/lock`)
       .set(true)
+      .then(async () => {
+        const names = session.current
+          ? Object.values(session.current)
+          : Object.values(session.carbon);
+        if (!session.current) {
+          await firebase
+            .database()
+            .ref(`sessions/${sessionId}/current`)
+            .set([...names])
+            .catch(throwError);
+        }
+        return names;
+      })
+      .then((names) => {
+        updateUser({
+          ...user,
+          names: shuffle(names).map((name) => ({
+            name,
+            answered: false,
+          })),
+          state: USERSTATE.PLAYING,
+          timer: minutes * 60 + seconds,
+        });
+      })
       .catch(throwError);
-    const names = session.current
-      ? Object.values(session.current)
-      : Object.values(session.carbon);
-    if (!session.current) {
-      firebase
-        .database()
-        .ref(`sessions/${sessionId}/current`)
-        .set([...names])
-        .catch(throwError);
-    }
-
-    updateUser({
-      ...user,
-      names: shuffle(names).map((name) => ({ name, answered: false })),
-      state: USERSTATE.PLAYING,
-      timer: minutes * 60 + seconds,
-    });
   };
 }
 
@@ -66,9 +75,13 @@ function endTurn(sessionId, user, updateUser, throwError) {
       .database()
       .ref(`sessions/${sessionId}/current`)
       .set([...names])
+      .then(() =>
+        firebase.database().ref(`sessions/${sessionId}/lock`).set(false)
+      )
+      .then(() => {
+        updateUser({ ...user, names: undefined, state: USERSTATE.WAITING });
+      })
       .catch(throwError);
-    firebase.database().ref(`sessions/${sessionId}/lock`).set(false);
-    updateUser({ ...user, names: undefined, state: USERSTATE.WAITING });
   };
 }
 
