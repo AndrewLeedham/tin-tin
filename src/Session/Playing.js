@@ -18,7 +18,13 @@ import Page from "../components/Page";
 import { Swipeable, direction } from "react-deck-swiper";
 import { noselect } from "./Playing.module.css";
 import Clearfix from "../components/Clearfix";
-import { FiPause, FiCheck, FiX, FiClock, FiVolumeX } from "react-icons/fi";
+import {
+  FiPause,
+  FiCheck,
+  FiDownload,
+  FiUpload,
+  FiVolumeX,
+} from "react-icons/fi";
 import Timer from "../components/Timer";
 import useLocalStorageState from "../useLocalStorageState";
 import useTimer from "../useTimer";
@@ -131,7 +137,7 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
                 <IconButton
                   size="lg"
                   aria-label={passed === null ? "Pass" : "Answered passed"}
-                  icon={passed === null ? FiX : FiCheck}
+                  icon={passed === null ? FiDownload : FiUpload}
                   variant="solid"
                   variantColor={passed === null ? "red" : "orange"}
                   onClick={left}
@@ -146,7 +152,7 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
                   aria-label={
                     currentTile !== null ? "Correct" : "Answered passed"
                   }
-                  icon={FiCheck}
+                  icon={currentTile !== null ? FiCheck : FiUpload}
                   variantColor={currentTile !== null ? "green" : "orange"}
                   onClick={currentTile !== null ? right : left}
                 />
