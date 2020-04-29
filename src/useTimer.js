@@ -10,6 +10,7 @@ export default function useTimer(start, onTimerEnd) {
     out.loop = true;
     return out;
   });
+  const [alarmPlaying, setAlarmPlaying] = useState(false);
   useEffect(() => {
     const timer = setInterval(() => {
       if (isPaused !== true) {
@@ -22,6 +23,7 @@ export default function useTimer(start, onTimerEnd) {
             setTime(0);
             setIsPaused(true);
             alarm.play();
+            setAlarmPlaying(true);
             onTimerEnd && onTimerEnd();
           }
         } else {
@@ -36,6 +38,7 @@ export default function useTimer(start, onTimerEnd) {
     setTime(start);
     setLast(Date.now());
     alarm.pause();
+    setAlarmPlaying(false);
   }
 
   function cleanup() {
@@ -43,5 +46,10 @@ export default function useTimer(start, onTimerEnd) {
     alarm.pause();
   }
 
-  return [time, isPaused, setIsPaused, reset, cleanup];
+  function stopAlarm() {
+    alarm.pause();
+    setAlarmPlaying(false);
+  }
+
+  return [time, isPaused, setIsPaused, reset, cleanup, alarmPlaying, stopAlarm];
 }
