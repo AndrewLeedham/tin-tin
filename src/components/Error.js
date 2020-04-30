@@ -6,7 +6,7 @@ import {
   AlertDescription,
 } from "@chakra-ui/core";
 
-export default function Error({ error }) {
+export default function Error({ title = "Something went wrong", error }) {
   return (
     <Alert
       status="error"
@@ -18,7 +18,7 @@ export default function Error({ error }) {
     >
       <AlertIcon size="40px" mr={0} />
       <AlertTitle mt={4} mb={1} fontSize="lg">
-        Something went wrong
+        {title}
       </AlertTitle>
       <AlertDescription maxWidth="sm">{error.toString()}</AlertDescription>
     </Alert>

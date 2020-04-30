@@ -12,7 +12,7 @@
 - ~~Fix sign in uncontrolled input~~
 - ~~Disable start turn when another user is playing~~
 - ~~Add enter session code to root with --- or --- seperator for login.~~
-- Better invalid session error.
+- ~~Better invalid session error.~~
 - Handle offline event stopping game until reconnected.
 - ~~Add service worker update toast.~~
 - Theme based on original tin (colour scheme + ~~favicon~~ + maybe tin animation)
