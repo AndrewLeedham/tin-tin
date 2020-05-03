@@ -138,7 +138,7 @@ export default function CreateSession() {
         ))}
       {!admin && !loading && !error && (
         <Page
-          heading="Tin-tin"
+          header={true}
           subHeading="Join a session with a unique session id or login to create a new session (closed beta)."
         >
           {authError && <Error error={authError} />}
