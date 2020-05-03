@@ -134,6 +134,7 @@ export default function Session() {
     firebase.database().ref(`sessions/${sessionId}`)
   );
   const [user, updateUser] = useUser(sessionId);
+  const sessionExists = session && session.val();
   return (
     <>
       {sessionLoading && !sessionError && (
@@ -141,13 +142,21 @@ export default function Session() {
           <Spinner size="xl" transform="translate(-50%, -50%)" />
         </Flex>
       )}
-      {sessionError && !sessionLoading && (
+      {(sessionError || !sessionExists) && !sessionLoading && (
         <Page>
-          <Error error={sessionError.toString()} />
+          <Error
+            title={sessionError ? undefined : "Session ID does not exist"}
+            error={
+              sessionError
+                ? sessionError.toString()
+                : "Please check you copied it correctly"
+            }
+          />
         </Page>
       )}
       {!sessionLoading &&
         !sessionError &&
+        sessionExists &&
         renderScreen(session.val(), sessionId, user, updateUser, throwError)}
     </>
   );

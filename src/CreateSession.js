@@ -10,18 +10,22 @@ import {
   Button,
   Spinner,
   Input,
+  InputGroup,
+  InputRightAddon,
 } from "@chakra-ui/core";
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import useUser from "./useUser";
 import firebase from "./firebase";
 import Page from "./components/Page";
-import { FiPlus, FiLogIn, FiLogOut } from "react-icons/fi";
+import { FiPlus, FiLogIn, FiLogOut, FiUserPlus } from "react-icons/fi";
 import Clearfix from "./components/Clearfix";
 import useAsyncError from "./useAsyncError";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Error from "./components/Error";
+import TextSeperator from "./components/TextSeperator";
 
 export default function CreateSession() {
+  const [session, setSession] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   let [admin, loading, error] = useAuthState(firebase.auth());
@@ -30,6 +34,8 @@ export default function CreateSession() {
   const [key, setKey] = useState(undefined);
   const [user, updateUser] = useUser();
   const throwError = useAsyncError();
+  const history = useHistory();
+
   useEffect(() => {
     if (user.sessionId) {
       setKey(user.sessionId);
@@ -131,8 +137,52 @@ export default function CreateSession() {
           </Page>
         ))}
       {!admin && !loading && !error && (
-        <Page>
+        <Page
+          header={true}
+          subHeading="Join a session with a unique session id or login to create a new session (closed beta)."
+        >
           {authError && <Error error={authError} />}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              history.push(`/sessions/${encodeURIComponent(session)}`);
+            }}
+          >
+            <FormControl>
+              <FormLabel htmlFor="session">Enter a session code:</FormLabel>
+              <InputGroup size="md">
+                <Input
+                  id="session"
+                  value={session}
+                  onChange={(event) => setSession(event.target.value)}
+                  style={{
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    borderRight: 0,
+                  }}
+                />
+                <InputRightAddon
+                  width="auto"
+                  p="0"
+                  backgroundColor="transparent"
+                >
+                  <Button
+                    type="submit"
+                    size="md"
+                    style={{
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0,
+                    }}
+                    variantColor="green"
+                    rightIcon={FiUserPlus}
+                  >
+                    Join
+                  </Button>
+                </InputRightAddon>
+              </InputGroup>
+            </FormControl>
+          </form>
+          <TextSeperator text="or" marginY={10} />
           <form
             onSubmit={(event) => {
               event.preventDefault();
