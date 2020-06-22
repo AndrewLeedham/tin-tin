@@ -1,5 +1,5 @@
 import React from "react";
-import { ThemeProvider, CSSReset, Flex } from "@chakra-ui/core";
+import { ThemeProvider, CSSReset, Flex, Text } from "@chakra-ui/core";
 import { customTheme } from "./theme";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import Session from "./Session";
@@ -17,6 +17,7 @@ function App({ isUpdateAvailable, updateAssets }) {
   return (
     <Router>
       <ThemeProvider theme={customTheme}>
+        <Text position="absolute" top="0" right="0" color="gray.500" p={2} fontSize="xs">{process.env.REACT_APP_VERSION}</Text>
         <CSSReset />
         <ErrorBoundary>
           <Switch>
