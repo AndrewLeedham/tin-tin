@@ -16,6 +16,7 @@ export default function Submitting({ count, onSubmit }) {
     <Page
       heading="Submit your names"
       subHeading={`Enter the ${count} names you want to put in the tin, then press "Submit names".`}
+      showLeave
     >
       <form
         onSubmit={(event) => {

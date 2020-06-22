@@ -23,6 +23,7 @@ export default function Waiting({ startTurn, round, noNames, timer, lock }) {
     <Page
       heading="Wait for your turn"
       subHeading='Welcome to tin-tin, press "Start turn" when it is your turn. "Start round" will be shown if there are no names left.'
+      showLeave
     >
       <form
         onSubmit={(event) => {

@@ -11,8 +11,8 @@ import Playing from "./Playing";
 import Error from "../components/Error";
 import Page from "../components/Page";
 import useAsyncError from "../useAsyncError";
-import useOnlineStatus from '@rehooks/online-status';
-import { trackEvent } from '../events';
+import useOnlineStatus from "@rehooks/online-status";
+import { trackEvent } from "../events";
 
 function addNames(session, sessionId, user, updateUser, throwError) {
   return (names) => {
@@ -39,49 +39,53 @@ function shuffle(a) {
 function startTurn(sessionId, user, updateUser, throwError, round) {
   return (minutes, seconds) => {
     // Get the most up to date session, the main session object should be syned automatically.
-    firebase.database().ref(`sessions/${sessionId}`).once('value').then((sessionRef) => {
-      const session = sessionRef.val();
-      if (!session.lock) {
-        firebase
-          .database()
-          .ref(`sessions/${sessionId}/lock`)
-          .set(true)
-          .then(async () => {
-            const names = session.current
-              ? Object.values(session.current)
-              : Object.values(session.carbon);
-            if (!session.current) {
-              await firebase
-                .database()
-                .ref(`sessions/${sessionId}/current`)
-                .set([...names])
-                .catch(throwError);
-            }
-            return names;
-          })
-          .then((names) => {
-            updateUser({
-              ...user,
-              names: shuffle(names).map((name) => ({
-                name,
-                answered: false,
-              })),
-              state: USERSTATE.PLAYING,
-              timer: minutes * 60 + seconds,
-            });
-          })
-          .then(() => {
-            trackEvent(sessionId, {
-              event: 'start_turn',
-              current: JSON.stringify(session.current ?? []),
-              minutes,
-              seconds,
-              round
+    firebase
+      .database()
+      .ref(`sessions/${sessionId}`)
+      .once("value")
+      .then((sessionRef) => {
+        const session = sessionRef.val();
+        if (!session.lock) {
+          firebase
+            .database()
+            .ref(`sessions/${sessionId}/lock`)
+            .set(true)
+            .then(async () => {
+              const names = session.current
+                ? Object.values(session.current)
+                : Object.values(session.carbon);
+              if (!session.current) {
+                await firebase
+                  .database()
+                  .ref(`sessions/${sessionId}/current`)
+                  .set([...names])
+                  .catch(throwError);
+              }
+              return names;
             })
-          })
-          .catch(throwError);
-      }
-    })
+            .then((names) => {
+              updateUser({
+                ...user,
+                names: shuffle(names).map((name) => ({
+                  name,
+                  answered: false,
+                })),
+                state: USERSTATE.PLAYING,
+                timer: minutes * 60 + seconds,
+              });
+            })
+            .then(() => {
+              trackEvent(sessionId, {
+                event: "start_turn",
+                current: JSON.stringify(session.current ?? []),
+                minutes,
+                seconds,
+                round,
+              });
+            })
+            .catch(throwError);
+        }
+      });
   };
 }
 
@@ -102,12 +106,12 @@ function endTurn(session, sessionId, user, updateUser, throwError) {
       })
       .then(() => {
         trackEvent(sessionId, {
-          event: 'end_turn',
+          event: "end_turn",
           n: before.length - after.length,
           before: JSON.stringify(before),
           after: JSON.stringify(after),
-          current: JSON.stringify(session.current ?? [])
-        })
+          current: JSON.stringify(session.current ?? []),
+        });
       })
       .catch(throwError);
   };
@@ -167,8 +171,17 @@ export default function Session() {
   return (
     <>
       {((sessionLoading && !sessionError) || !isOnline) && (
-        <Flex alignItems="center" justifyContent="center" direction="column" mt={16}>
-          {!isOnline && (<Text mb={4} fontSize="lg">Offline, reconnecting</Text>)}
+        <Flex
+          alignItems="center"
+          justifyContent="center"
+          direction="column"
+          mt={16}
+        >
+          {!isOnline && (
+            <Text mb={4} fontSize="lg">
+              Offline, reconnecting
+            </Text>
+          )}
           <Spinner size="xl" transform="translate(-50%, -50%)" />
         </Flex>
       )}
