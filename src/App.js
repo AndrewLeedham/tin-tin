@@ -17,7 +17,16 @@ function App({ isUpdateAvailable, updateAssets }) {
   return (
     <Router>
       <ThemeProvider theme={customTheme}>
-        <Text position="absolute" top="0" right="0" color="gray.500" p={2} fontSize="xs">{process.env.REACT_APP_VERSION}</Text>
+        <Text
+          position="absolute"
+          top="0"
+          right="0"
+          color="gray.500"
+          p={2}
+          fontSize="xs"
+        >
+          {process.env.REACT_APP_VERSION}
+        </Text>
         <CSSReset />
         <ErrorBoundary>
           <Switch>
