@@ -12,6 +12,7 @@ import Error from "../components/Error";
 import Page from "../components/Page";
 import useAsyncError from "../useAsyncError";
 import useOnlineStatus from '@rehooks/online-status';
+import { trackEvent } from '../events';
 
 function addNames(session, sessionId, user, updateUser, throwError) {
   return (names) => {
@@ -35,7 +36,7 @@ function shuffle(a) {
   return a;
 }
 
-function startTurn(session, sessionId, user, updateUser, throwError) {
+function startTurn(sessionId, user, updateUser, throwError, round) {
   return (minutes, seconds) => {
     // Get the most up to date session, the main session object should be syned automatically.
     firebase.database().ref(`sessions/${sessionId}`).once('value').then((sessionRef) => {
@@ -69,15 +70,26 @@ function startTurn(session, sessionId, user, updateUser, throwError) {
               timer: minutes * 60 + seconds,
             });
           })
+          .then(() => {
+            trackEvent(sessionId, {
+              event: 'start_turn',
+              current: JSON.stringify(session.current ?? []),
+              minutes,
+              seconds,
+              round
+            })
+          })
           .catch(throwError);
       }
     })
   };
 }
 
-function endTurn(sessionId, user, updateUser, throwError) {
+function endTurn(session, sessionId, user, updateUser, throwError) {
   return (names) => {
-    names = names.filter(({ answered }) => !answered).map(({ name }) => name);
+    const before = [...names];
+    const after = names.filter(({ answered }) => !answered);
+    names = after.map(({ name }) => name);
     firebase
       .database()
       .ref(`sessions/${sessionId}/current`)
@@ -87,6 +99,15 @@ function endTurn(sessionId, user, updateUser, throwError) {
       )
       .then(() => {
         updateUser({ ...user, names: undefined, state: USERSTATE.WAITING });
+      })
+      .then(() => {
+        trackEvent(sessionId, {
+          event: 'end_turn',
+          n: before.length - after.length,
+          before: JSON.stringify(before),
+          after: JSON.stringify(after),
+          current: JSON.stringify(session.current ?? [])
+        })
       })
       .catch(throwError);
   };
@@ -105,11 +126,11 @@ function renderScreen(session, sessionId, user, updateUser, throwError) {
       return (
         <Waiting
           startTurn={startTurn(
-            session,
             sessionId,
             user,
             updateUser,
-            throwError
+            throwError,
+            !session.current || Object.values(session.current).length === 0
           )}
           round={
             !session.current || Object.values(session.current).length === 0
@@ -126,7 +147,7 @@ function renderScreen(session, sessionId, user, updateUser, throwError) {
         <Playing
           names={user.names}
           timer={user.timer}
-          endTurn={endTurn(sessionId, user, updateUser, throwError)}
+          endTurn={endTurn(session, sessionId, user, updateUser, throwError)}
         />
       );
     default:
