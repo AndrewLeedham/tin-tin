@@ -11,7 +11,6 @@ import {
   Spinner,
   Input,
   InputGroup,
-  InputRightAddon,
 } from "@chakra-ui/core";
 import { Redirect, useHistory } from "react-router-dom";
 import useUser from "./useUser";
@@ -104,7 +103,7 @@ export default function CreateSession() {
             history.push(`/sessions/${encodeURIComponent(session)}`);
           }}
         >
-          <FormControl>
+          <FormControl mb={4}>
             <FormLabel htmlFor="session">Enter a session id:</FormLabel>
             <InputGroup size="md">
               <Input
@@ -117,23 +116,18 @@ export default function CreateSession() {
                   borderBottomRightRadius: 0,
                   borderRight: 0,
                 }}
+                isRequired
               />
-              <InputRightAddon width="auto" p="0" backgroundColor="transparent">
-                <Button
-                  type="submit"
-                  size="md"
-                  style={{
-                    borderTopLeftRadius: 0,
-                    borderBottomLeftRadius: 0,
-                  }}
-                  variantColor="green"
-                  rightIcon={FiUserPlus}
-                >
-                  Join
-                </Button>
-              </InputRightAddon>
             </InputGroup>
           </FormControl>
+          <Button
+            type="submit"
+            size="md"
+            variantColor="green"
+            rightIcon={FiUserPlus}
+          >
+            Join
+          </Button>
         </form>
       </>
     );
