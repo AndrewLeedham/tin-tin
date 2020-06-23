@@ -11,7 +11,6 @@ import {
   Spinner,
   Input,
   InputGroup,
-  InputRightAddon,
 } from "@chakra-ui/core";
 import { Redirect, useHistory } from "react-router-dom";
 import useUser from "./useUser";
@@ -32,6 +31,7 @@ export default function CreateSession() {
   const [authError, setAuthError] = useState(undefined);
   const [count, setCount] = useState(4);
   const [key, setKey] = useState(undefined);
+  const [customID, setCustomID] = useState("");
   const [user, updateUser] = useUser();
   const throwError = useAsyncError();
   const history = useHistory();
@@ -44,17 +44,42 @@ export default function CreateSession() {
 
   function onSubmit(event) {
     event.preventDefault();
-    firebase
-      .database()
-      .ref("sessions")
-      .push({
-        count,
-        timestamp: Date.now(),
-      })
-      .then(({ key: sessionId }) => {
-        updateUser({ ...user, sessionId });
-      })
-      .catch(throwError);
+    const customPromise =
+      !!customID && customID.length > 0 && customID.length < 20
+        ? firebase
+            .database()
+            .ref(`sessions/${customID}`)
+            .once("value")
+            .then((session) => !session.val())
+        : Promise.resolve(false);
+
+    customPromise.then((useCustom) => {
+      if (useCustom) {
+        firebase
+          .database()
+          .ref(`sessions/${customID}`)
+          .set({
+            count,
+            timestamp: Date.now(),
+          })
+          .then(() => {
+            updateUser({ ...user, sessionId: customID });
+          })
+          .catch(throwError);
+      } else {
+        firebase
+          .database()
+          .ref("sessions")
+          .push({
+            count,
+            timestamp: Date.now(),
+          })
+          .then(({ key: sessionId }) => {
+            updateUser({ ...user, sessionId });
+          })
+          .catch(throwError);
+      }
+    });
   }
 
   function signin() {
@@ -67,6 +92,45 @@ export default function CreateSession() {
 
   function signout() {
     firebase.auth().signOut().catch(setAuthError);
+  }
+
+  function renderJoin() {
+    return (
+      <>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            history.push(`/sessions/${encodeURIComponent(session)}`);
+          }}
+        >
+          <FormControl mb={4}>
+            <FormLabel htmlFor="session">Enter a session id:</FormLabel>
+            <InputGroup size="md">
+              <Input
+                type="text"
+                id="session"
+                value={session}
+                onChange={(event) => setSession(event.target.value)}
+                style={{
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderRight: 0,
+                }}
+                isRequired
+              />
+            </InputGroup>
+          </FormControl>
+          <Button
+            type="submit"
+            size="md"
+            variantColor="green"
+            rightIcon={FiUserPlus}
+          >
+            Join
+          </Button>
+        </form>
+      </>
+    );
   }
 
   return (
@@ -92,6 +156,7 @@ export default function CreateSession() {
           <Redirect to={`/sessions/${key}`} />
         ) : (
           <Page
+            header={true}
             heading="Create a new session"
             subHeading="Start a new tin-tin game session with the number of names per player you want. You will be redirected to a shareable url that other players can join from."
           >
@@ -108,12 +173,22 @@ export default function CreateSession() {
                   onChange={setCount}
                   mb={4}
                 >
-                  <NumberInputField />
+                  <NumberInputField type="number" />
                   <NumberInputStepper>
                     <NumberIncrementStepper />
                     <NumberDecrementStepper />
                   </NumberInputStepper>
                 </NumberInput>
+              </FormControl>
+              <FormControl>
+                <FormLabel htmlFor="customID">Custom Session ID</FormLabel>
+                <Input
+                  id="customID"
+                  type="text"
+                  onChange={(event) => setCustomID(event.target.value)}
+                  value={customID}
+                  mb={4}
+                />
               </FormControl>
               <Button
                 variant="outline"
@@ -134,6 +209,8 @@ export default function CreateSession() {
               </Button>
             </form>
             <Clearfix />
+            <TextSeperator text="or" marginY={10} />
+            {renderJoin()}
           </Page>
         ))}
       {!admin && !loading && !error && (
@@ -142,46 +219,7 @@ export default function CreateSession() {
           subHeading="Join a session with a unique session id or login to create a new session (closed beta)."
         >
           {authError && <Error error={authError} />}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              history.push(`/sessions/${encodeURIComponent(session)}`);
-            }}
-          >
-            <FormControl>
-              <FormLabel htmlFor="session">Enter a session code:</FormLabel>
-              <InputGroup size="md">
-                <Input
-                  id="session"
-                  value={session}
-                  onChange={(event) => setSession(event.target.value)}
-                  style={{
-                    borderTopRightRadius: 0,
-                    borderBottomRightRadius: 0,
-                    borderRight: 0,
-                  }}
-                />
-                <InputRightAddon
-                  width="auto"
-                  p="0"
-                  backgroundColor="transparent"
-                >
-                  <Button
-                    type="submit"
-                    size="md"
-                    style={{
-                      borderTopLeftRadius: 0,
-                      borderBottomLeftRadius: 0,
-                    }}
-                    variantColor="green"
-                    rightIcon={FiUserPlus}
-                  >
-                    Join
-                  </Button>
-                </InputRightAddon>
-              </InputGroup>
-            </FormControl>
-          </form>
+          {renderJoin()}
           <TextSeperator text="or" marginY={10} />
           <form
             onSubmit={(event) => {

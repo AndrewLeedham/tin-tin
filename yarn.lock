@@ -1579,6 +1579,11 @@
   resolved "https://registry.yarnpkg.com/@reach/visually-hidden/-/visually-hidden-0.1.4.tgz#0dc4ecedf523004337214187db70a46183bd945b"
   integrity sha512-QHbzXjflSlCvDd6vJwdwx16mSB+vUCCQMiU/wK/CgVNPibtpEiIbisyxkpZc55DyDFNUIqP91rSUsNae+ogGDQ==
 
+"@rehooks/online-status@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@rehooks/online-status/-/online-status-1.1.2.tgz#0c11122e0bbe42424ca8f4cc3a2fd290229a7252"
+  integrity sha512-tuz6RtdgqkBMZr82UqTkzPCsHNx6tpEyhTZ5OD8WhDpU4/TLzljBCseuWLlbeQiygbM9F2A4Ea7P+wyjohJXBw==
+
 "@sheerun/mutationobserver-shim@^0.3.2":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"

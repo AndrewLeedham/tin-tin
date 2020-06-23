@@ -5,12 +5,14 @@ import { useObject } from "react-firebase-hooks/database";
 import { useParams } from "react-router-dom";
 import useUser, { USERSTATE } from "../useUser";
 import Submitting from "./Submitting";
-import { Spinner, Flex } from "@chakra-ui/core";
+import { Spinner, Flex, Text } from "@chakra-ui/core";
 import Waiting from "./Waiting";
 import Playing from "./Playing";
 import Error from "../components/Error";
 import Page from "../components/Page";
 import useAsyncError from "../useAsyncError";
+import useOnlineStatus from "@rehooks/online-status";
+import { trackEvent } from "../events";
 
 function addNames(session, sessionId, user, updateUser, throwError) {
   return (names) => {
@@ -34,43 +36,64 @@ function shuffle(a) {
   return a;
 }
 
-function startTurn(session, sessionId, user, updateUser, throwError) {
+function startTurn(sessionId, user, updateUser, throwError, round) {
   return (minutes, seconds) => {
+    // Get the most up to date session, the main session object should be syned automatically.
     firebase
       .database()
-      .ref(`sessions/${sessionId}/lock`)
-      .set(true)
-      .then(async () => {
-        const names = session.current
-          ? Object.values(session.current)
-          : Object.values(session.carbon);
-        if (!session.current) {
-          await firebase
+      .ref(`sessions/${sessionId}`)
+      .once("value")
+      .then((sessionRef) => {
+        const session = sessionRef.val();
+        if (!session.lock) {
+          firebase
             .database()
-            .ref(`sessions/${sessionId}/current`)
-            .set([...names])
+            .ref(`sessions/${sessionId}/lock`)
+            .set(true)
+            .then(async () => {
+              const names = session.current
+                ? Object.values(session.current)
+                : Object.values(session.carbon);
+              if (!session.current) {
+                await firebase
+                  .database()
+                  .ref(`sessions/${sessionId}/current`)
+                  .set([...names])
+                  .catch(throwError);
+              }
+              return names;
+            })
+            .then((names) => {
+              updateUser({
+                ...user,
+                names: shuffle(names).map((name) => ({
+                  name,
+                  answered: false,
+                })),
+                state: USERSTATE.PLAYING,
+                timer: minutes * 60 + seconds,
+              });
+            })
+            .then(() => {
+              trackEvent(sessionId, {
+                event: "start_turn",
+                current: JSON.stringify(session.current ?? []),
+                minutes,
+                seconds,
+                round,
+              });
+            })
             .catch(throwError);
         }
-        return names;
-      })
-      .then((names) => {
-        updateUser({
-          ...user,
-          names: shuffle(names).map((name) => ({
-            name,
-            answered: false,
-          })),
-          state: USERSTATE.PLAYING,
-          timer: minutes * 60 + seconds,
-        });
-      })
-      .catch(throwError);
+      });
   };
 }
 
-function endTurn(sessionId, user, updateUser, throwError) {
+function endTurn(session, sessionId, user, updateUser, throwError) {
   return (names) => {
-    names = names.filter(({ answered }) => !answered).map(({ name }) => name);
+    const before = [...names];
+    const after = names.filter(({ answered }) => !answered);
+    names = after.map(({ name }) => name);
     firebase
       .database()
       .ref(`sessions/${sessionId}/current`)
@@ -80,6 +103,15 @@ function endTurn(sessionId, user, updateUser, throwError) {
       )
       .then(() => {
         updateUser({ ...user, names: undefined, state: USERSTATE.WAITING });
+      })
+      .then(() => {
+        trackEvent(sessionId, {
+          event: "end_turn",
+          n: before.length - after.length,
+          before: JSON.stringify(before),
+          after: JSON.stringify(after),
+          current: JSON.stringify(session.current ?? []),
+        });
       })
       .catch(throwError);
   };
@@ -98,11 +130,11 @@ function renderScreen(session, sessionId, user, updateUser, throwError) {
       return (
         <Waiting
           startTurn={startTurn(
-            session,
             sessionId,
             user,
             updateUser,
-            throwError
+            throwError,
+            !session.current || Object.values(session.current).length === 0
           )}
           round={
             !session.current || Object.values(session.current).length === 0
@@ -119,7 +151,7 @@ function renderScreen(session, sessionId, user, updateUser, throwError) {
         <Playing
           names={user.names}
           timer={user.timer}
-          endTurn={endTurn(sessionId, user, updateUser, throwError)}
+          endTurn={endTurn(session, sessionId, user, updateUser, throwError)}
         />
       );
     default:
@@ -135,14 +167,25 @@ export default function Session() {
   );
   const [user, updateUser] = useUser(sessionId);
   const sessionExists = session && session.val();
+  const isOnline = useOnlineStatus();
   return (
     <>
-      {sessionLoading && !sessionError && (
-        <Flex alignItems="center" justifyContent="center" mt={16}>
+      {((sessionLoading && !sessionError) || !isOnline) && (
+        <Flex
+          alignItems="center"
+          justifyContent="center"
+          direction="column"
+          mt={16}
+        >
+          {!isOnline && (
+            <Text mb={4} fontSize="lg">
+              Offline, reconnecting
+            </Text>
+          )}
           <Spinner size="xl" transform="translate(-50%, -50%)" />
         </Flex>
       )}
-      {(sessionError || !sessionExists) && !sessionLoading && (
+      {(sessionError || !sessionExists) && !sessionLoading && isOnline && (
         <Page>
           <Error
             title={sessionError ? undefined : "Session ID does not exist"}
@@ -157,6 +200,7 @@ export default function Session() {
       {!sessionLoading &&
         !sessionError &&
         sessionExists &&
+        isOnline &&
         renderScreen(session.val(), sessionId, user, updateUser, throwError)}
     </>
   );
