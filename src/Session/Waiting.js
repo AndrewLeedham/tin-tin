@@ -11,7 +11,7 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/core";
 import Page from "../components/Page";
-import { FiPlay } from "react-icons/fi";
+import { FiPlay, FiClock } from "react-icons/fi";
 import Clearfix from "../components/Clearfix";
 
 export default function Waiting({ startTurn, round, noNames, timer, lock }) {
@@ -36,7 +36,7 @@ export default function Waiting({ startTurn, round, noNames, timer, lock }) {
             <FormLabel htmlFor="minutes">Minutes</FormLabel>
             <NumberInput
               id="minutes"
-              defaultValue={minutes}
+              value={minutes}
               min={0}
               max={5}
               isInvalid={minutes === 0 && seconds === 0}
@@ -56,7 +56,7 @@ export default function Waiting({ startTurn, round, noNames, timer, lock }) {
                 setMinutes(value);
               }}
             >
-              <NumberInputField />
+              <NumberInputField type="number" />
               <NumberInputStepper>
                 <NumberIncrementStepper />
                 <NumberDecrementStepper />
@@ -67,7 +67,7 @@ export default function Waiting({ startTurn, round, noNames, timer, lock }) {
             <FormLabel htmlFor="seconds">Seconds</FormLabel>
             <NumberInput
               id="seconds"
-              defaultValue={seconds}
+              value={seconds}
               min={0}
               max={60}
               isInvalid={minutes === 0 && seconds === 0}
@@ -87,7 +87,7 @@ export default function Waiting({ startTurn, round, noNames, timer, lock }) {
                 setSeconds(value);
               }}
             >
-              <NumberInputField />
+              <NumberInputField type="number" />
               <NumberInputStepper>
                 <NumberIncrementStepper />
                 <NumberDecrementStepper />
@@ -95,7 +95,29 @@ export default function Waiting({ startTurn, round, noNames, timer, lock }) {
             </NumberInput>
           </FormControl>
         </Stack>
-        <Stack isInline justify="center">
+        <Stack isInline justify="space-between">
+          <Button
+            variant="outline"
+            variantColor="blue"
+            rightIcon={FiClock}
+            onClick={() => {
+              setMinutes(1);
+              setSeconds(0);
+            }}
+          >
+            1 Minute
+          </Button>
+          <Button
+            variant="outline"
+            variantColor="blue"
+            rightIcon={FiClock}
+            onClick={() => {
+              setMinutes(0);
+              setSeconds(30);
+            }}
+          >
+            30 seconds
+          </Button>
           <Button
             type="submit"
             variant={round ? "solid" : "outline"}

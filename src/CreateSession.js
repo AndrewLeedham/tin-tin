@@ -179,7 +179,7 @@ export default function CreateSession() {
                   onChange={setCount}
                   mb={4}
                 >
-                  <NumberInputField />
+                  <NumberInputField type="number" />
                   <NumberInputStepper>
                     <NumberIncrementStepper />
                     <NumberDecrementStepper />
