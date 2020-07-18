@@ -25,7 +25,7 @@ import {
   FiUpload,
   FiVolumeX,
 } from "react-icons/fi";
-import Timer from "../components/Timer";
+import Timer, { pad } from "../components/Timer";
 import useLocalStorageState from "../useLocalStorageState";
 import useTimer from "../useTimer";
 
@@ -266,6 +266,12 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
                     0
                   )}
               </Text>
+              {time > 0 && (
+                <Text>
+                  You have {pad(Math.floor(time / 60))}:
+                  {pad(Math.floor(time % 60))} left
+                </Text>
+              )}
             </AlertDialogBody>
 
             <AlertDialogFooter>
