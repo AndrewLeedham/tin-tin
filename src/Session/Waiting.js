@@ -112,8 +112,8 @@ export default function Waiting({ startTurn, round, noNames, timer, lock }) {
             variantColor="blue"
             rightIcon={FiClock}
             onClick={() => {
-              setMinutes(0);
               setSeconds(30);
+              setMinutes(0);
             }}
           >
             30 seconds
