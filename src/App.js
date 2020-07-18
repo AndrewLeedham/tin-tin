@@ -17,14 +17,7 @@ function App({ isUpdateAvailable, updateAssets }) {
   return (
     <Router>
       <ThemeProvider theme={customTheme}>
-        <Text
-          position="absolute"
-          top="0"
-          right="0"
-          color="gray.500"
-          p={2}
-          fontSize="xs"
-        >
+        <Text position="absolute" top="0" right="0" p={2} fontSize="xs">
           {process.env.REACT_APP_VERSION}
         </Text>
         <CSSReset />
@@ -44,7 +37,7 @@ function App({ isUpdateAvailable, updateAssets }) {
               <Alert status="info" rounded="md">
                 <AlertIcon />
                 <AlertDescription mr={2}>
-                  A new version of Tin-tin is available! Refresh to update.
+                  A new version of Tin-tin is available! Click to update.
                 </AlertDescription>
                 <IconButton
                   icon={FiRefreshCw}
