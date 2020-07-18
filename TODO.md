@@ -17,7 +17,7 @@
 - ~~Add ability to leave a session.~~
 - ~~Handle offline event stopping game until reconnected.~~
 - Add some-sort of session cleanup (admin tools?)
-- Add name field and display who is currently playing (replace lock boolean with lock user)
+- ~~Add name field and display who is currently playing (replace lock boolean with lock user)~~
 - ~~Add service worker update toast.~~
 - Theme based on original tin (colour scheme + ~~favicon~~ + maybe tin animation)
 - Write up README
