@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IconButton, Text, Flex } from "@chakra-ui/core";
 import { FiPause, FiPlay, FiRepeat, FiEye, FiEyeOff } from "react-icons/fi";
 
-function pad(number) {
+export function pad(number) {
   const str = number.toString();
   if (str.length === 1) {
     return "0" + str;
