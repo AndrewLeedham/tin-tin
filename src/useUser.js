@@ -29,6 +29,7 @@ function createUser(sessionId, admin = false) {
     admin,
     state: USERSTATE.SUBMITTING,
     names: undefined,
+    playerName: undefined,
   };
 
   window.localStorage.setItem("user", JSON.stringify(user));

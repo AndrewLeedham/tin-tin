@@ -15,14 +15,14 @@ import useOnlineStatus from "@rehooks/online-status";
 import { trackEvent } from "../events";
 
 function addNames(session, sessionId, user, updateUser, throwError) {
-  return (names) => {
+  return (playerName, names) => {
     const previous = session.carbon ? Object.values(session.carbon) : [];
     firebase
       .database()
       .ref(`sessions/${sessionId}/carbon`)
       .set([...previous, ...names])
       .then(() => {
-        updateUser({ ...user, state: USERSTATE.WAITING });
+        updateUser({ ...user, state: USERSTATE.WAITING, playerName });
       })
       .catch(throwError);
   };
@@ -49,7 +49,7 @@ function startTurn(sessionId, user, updateUser, throwError, round) {
           firebase
             .database()
             .ref(`sessions/${sessionId}/lock`)
-            .set(true)
+            .set(user.playerName)
             .then(async () => {
               const names = session.current
                 ? Object.values(session.current)
@@ -129,6 +129,7 @@ function renderScreen(session, sessionId, user, updateUser, throwError) {
     case USERSTATE.WAITING:
       return (
         <Waiting
+          user={user}
           startTurn={startTurn(
             sessionId,
             user,
@@ -143,7 +144,7 @@ function renderScreen(session, sessionId, user, updateUser, throwError) {
             !session.carbon || Object.values(session.carbon).length === 0
           }
           timer={user.timer}
-          lock={!!session.lock}
+          lock={session.lock}
         />
       );
     case USERSTATE.PLAYING:
