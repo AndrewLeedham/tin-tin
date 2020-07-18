@@ -17,7 +17,6 @@ import {
 import Page from "../components/Page";
 import { Swipeable, direction } from "react-deck-swiper";
 import { noselect } from "./Playing.module.css";
-import Clearfix from "../components/Clearfix";
 import {
   FiPause,
   FiCheck,
@@ -125,6 +124,7 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
         {currentTile !== null || passed !== null ? (
           <Swipeable
             onSwipe={onSwipe}
+            wrapperHeight={"239"}
             renderButtons={({ left, right }) => (
               <Stack
                 isInline
@@ -197,7 +197,6 @@ export default function Playing({ names: initialNames, endTurn, timer }) {
             End turn
           </Button>
         </Flex>
-        <Clearfix />
       </Page>
       <AlertDialog
         isOpen={isOpen}
