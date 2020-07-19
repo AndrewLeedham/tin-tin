@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
+  SimpleGrid,
 } from "@chakra-ui/core";
 import Page from "../components/Page";
 import { FiPlay, FiClock } from "react-icons/fi";
@@ -113,7 +114,7 @@ export default function Waiting({
               </NumberInput>
             </FormControl>
           </Stack>
-          <Stack isInline justify="space-between">
+          <SimpleGrid columns={[1, 3]} spacing={2}>
             <Button
               variant="outline"
               variantColor="blue"
@@ -123,7 +124,7 @@ export default function Waiting({
                 setSeconds(0);
               }}
             >
-              1 Minute
+              1 min
             </Button>
             <Button
               variant="outline"
@@ -134,7 +135,7 @@ export default function Waiting({
                 setMinutes(0);
               }}
             >
-              30 seconds
+              30 secs
             </Button>
             <Button
               type={round ? undefined : "submit"}
@@ -146,7 +147,7 @@ export default function Waiting({
             >
               Start {round ? "round" : "turn"}
             </Button>
-          </Stack>
+          </SimpleGrid>
           <Clearfix />
           {lock && (
             <Text textAlign="center" py={4}>
