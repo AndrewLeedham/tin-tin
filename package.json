@@ -14,6 +14,7 @@
     "emotion-theming": "^10.0.27",
     "firebase": "^7.12.0",
     "react": "^16.13.1",
+    "react-color": "^2.19.3",
     "react-deck-swiper": "^1.0.9",
     "react-dom": "^16.13.1",
     "react-firebase-hooks": "^2.1.1",

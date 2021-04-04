@@ -11,6 +11,8 @@ import {
   Spinner,
   Input,
   InputGroup,
+  Stack,
+  Flex,
 } from "@chakra-ui/core";
 import { Redirect, useHistory } from "react-router-dom";
 import useUser from "./useUser";
@@ -22,6 +24,7 @@ import useAsyncError from "./useAsyncError";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Error from "./components/Error";
 import TextSeperator from "./components/TextSeperator";
+import TeamSetup from "./components/TeamSetup";
 
 export default function CreateSession() {
   const [session, setSession] = useState("");
@@ -161,52 +164,54 @@ export default function CreateSession() {
             subHeading="Start a new tin-tin game session with the number of names per player you want. You will be redirected to a shareable url that other players can join from."
           >
             <form onSubmit={onSubmit}>
-              <FormControl>
-                <FormLabel htmlFor="count">
-                  Number of names a player can select
-                </FormLabel>
-                <NumberInput
-                  id="count"
-                  defaultValue={count}
-                  min={1}
-                  max={10}
-                  onChange={setCount}
-                  mb={4}
-                >
-                  <NumberInputField type="number" />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </FormControl>
-              <FormControl>
-                <FormLabel htmlFor="customID">Custom Session ID</FormLabel>
-                <Input
-                  id="customID"
-                  type="text"
-                  onChange={(event) => setCustomID(event.target.value)}
-                  value={customID}
-                  mb={4}
-                />
-              </FormControl>
-              <Button
-                variant="outline"
-                rightIcon={FiLogOut}
-                float="left"
-                onClick={() => signout()}
-              >
-                Logout
-              </Button>
-              <Button
-                type="submit"
-                variant="solid"
-                variantColor="green"
-                rightIcon={FiPlus}
-                float="right"
-              >
-                Create new session
-              </Button>
+              <Stack spacing={4}>
+                <FormControl>
+                  <FormLabel htmlFor="count">
+                    Number of names a player can select
+                  </FormLabel>
+                  <NumberInput
+                    id="count"
+                    defaultValue={count}
+                    min={1}
+                    max={10}
+                    onChange={setCount}
+                  >
+                    <NumberInputField type="number" />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                </FormControl>
+                <TeamSetup />
+                <FormControl>
+                  <FormLabel htmlFor="customID">Custom Session ID</FormLabel>
+                  <Input
+                    id="customID"
+                    type="text"
+                    onChange={(event) => setCustomID(event.target.value)}
+                    value={customID}
+                  />
+                </FormControl>
+
+                <Flex justifyContent="space-between">
+                  <Button
+                    variant="outline"
+                    rightIcon={FiLogOut}
+                    onClick={() => signout()}
+                  >
+                    Logout
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="solid"
+                    variantColor="green"
+                    rightIcon={FiPlus}
+                  >
+                    Create new session
+                  </Button>
+                </Flex>
+              </Stack>
             </form>
             <Clearfix />
             <TextSeperator text="or" marginY={10} />
