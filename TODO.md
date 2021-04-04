@@ -23,3 +23,10 @@
 - Write up README
 - Add unit testing
 - Create changelog for 1.0 release via semantic-release
+- Add teams support
+  - Creation and randomisation of player team
+  - List other players in team
+  - Allow users to select which team they are on
+  - Keep track of score per-team
+- Detect if a user re-opened the app and force sync
+- Add dashboard for changing entry names, seeing event logs and un-locking the game.
